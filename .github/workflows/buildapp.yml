@@ -137,6 +137,27 @@ jobs:
           name: uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
           path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
           if-no-files-found: error
+          
+      - name: Update Source
+        run: |
+          echo "artifact_url=$(echo "artifact_url=https://github.com/$GITHUB_REPOSITORY/suites/$GITHUB_RUN_ID/artifacts/uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}.ipa" >> $GITHUB_OUTPUT)" >> $GITHUB_ENV
+          cd ${{ github.workspace }}/main/packages
+          git clone https://github.com/nickoanastassiu/AltSource.git
+          mv uYouPlus_${{ env.YOUTUBE_VERSION  }}_${{ env.UYOU_VERSION }}.ipa ipa.zip
+          unzip ipa.zip
+          swift ./AltSource/updates/uYouPlus.swift ${{ github.event.head_commit.message }} ${{ env.artifact_url }}
+ 
+      - name: Commit Source
+        uses: dmnemec/copy_file_to_another_repo_action@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source_file: "source.json"
+          destination_repo: "nickoanastassiu/AltStore"
+          destination_file: "source.json"
+          commit_message: "uYou+ Update"
+          user_name: "nickoanastassiu"
+          user_email: ${{ secrets.USER_EMAIL }}
 
       - name: Create Release
         id: create_release
