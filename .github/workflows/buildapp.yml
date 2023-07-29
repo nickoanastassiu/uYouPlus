@@ -140,12 +140,12 @@ jobs:
           
       - name: Update Source
         run: |
-          echo "artifact_url=$(echo "artifact_url=https://github.com/$GITHUB_REPOSITORY/suites/$GITHUB_RUN_ID/artifacts/uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}.ipa" >> $GITHUB_OUTPUT)" >> $GITHUB_ENV
+          (echo "artifact_url=$(echo "artifact_url=https://github.com/$GITHUB_REPOSITORY/suites/$GITHUB_RUN_ID/artifacts/uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}.ipa" >> $GITHUB_OUTPUT)" >> $GITHUB_ENV)
           cd ${{ github.workspace }}/main/packages
           git clone https://github.com/nickoanastassiu/AltSource.git
-          mv "uYouPlus_${{ env.YOUTUBE_VERSION  }}_${{ env.UYOU_VERSION }}.ipa" ipa.zip
+          (mv "uYouPlus_${{ env.YOUTUBE_VERSION  }}_${{ env.UYOU_VERSION }}.ipa" ipa.zip)
           unzip ipa.zip
-          swift ./AltSource/updates/uYouPlus.swift "${{ github.event.head_commit.message }}" "${{ env.artifact_url }}"
+          (swift ./AltSource/updates/uYouPlus.swift "${{ github.event.head_commit.message }}" "${{ env.artifact_url }}")
  
       - name: Commit Source
         uses: dmnemec/copy_file_to_another_repo_action@main
