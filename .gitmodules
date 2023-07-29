@@ -42,6 +42,3 @@
 	path = Tweaks/iSponsorBlock
 	url = https://github.com/Galactic-Dev/iSponsorBlock.git
 	branch = master
-[submodule "Tweaks/MrBeastify"]
-	path = Tweaks/MrBeastify
-	url = https://github.com/leminlimez/MrBeastify.git
