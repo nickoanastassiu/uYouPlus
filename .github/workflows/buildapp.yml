@@ -161,7 +161,7 @@ jobs:
           git clone https://github.com/nickoanastassiu/AltSource.git
           mv uYouPlus.ipa ipa.zip
           unzip -qq ipa.zip
-          swift ./AltSource/updates/uYouPlus.swift "(${{ github.event.head_commit.message }})" "v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})"
+          swift ./AltSource/updates/uYouPlus.swift "New Update" "v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})"
  
       - name: Commit Source
         uses: dmnemec/copy_file_to_another_repo_action@main
