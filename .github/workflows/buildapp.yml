@@ -160,7 +160,7 @@ jobs:
           cd ${{ github.workspace }}/main/packages
           git clone https://github.com/nickoanastassiu/AltSource.git
           mv uYouPlus.ipa ipa.zip
-          unzip ipa.zip
+          unzip -qq ipa.zip
           swift ./AltSource/updates/uYouPlus.swift "(${{ github.event.head_commit.message }})" "v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})"
  
       - name: Commit Source
