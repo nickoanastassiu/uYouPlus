@@ -151,26 +151,28 @@ jobs:
           name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
           draft: ${{ env.DRAFT }}
-
+          
+      - name: Checkout AltSource
+        uses: actions/checkout@v3.2.0
+        with:
+          repository: nickoanastassiu/AltSource
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          path: ${{ github.workspace }}/main/packages/AltSource
+          
       - name: Update Source
         env:
           UYOU_VERSION: ${{ inputs.uyou_version }}
           YOUTUBE_VERSION: ${{ inputs.youtube_version }}
         run: |
           cd ${{ github.workspace }}/main/packages
-          git clone https://github.com/nickoanastassiu/AltSource.git
           mv uYouPlus.ipa ipa.zip
           unzip -qq ipa.zip
           swift ./AltSource/updates/uYouPlus.swift "New Update" "v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})"
  
       - name: Commit Source
-        uses: dmnemec/copy_file_to_another_repo_action@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        with:
-          source_file: "source.json"
-          destination_repo: "nickoanastassiu/AltSource"
-          destination_file: "source.json"
-          commit_message: "uYou+ Update"
-          user_name: "nickoanastassiu"
-          user_email: ${{ secrets.USER_EMAIL }}
+        run: |
+          cd ${{ github.workspace }}/main/packages/AltSource
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -m "uYou+ Update"
+          git push
