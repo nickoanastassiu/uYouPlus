@@ -174,5 +174,6 @@ jobs:
           cd ${{ github.workspace }}/main/packages/AltSource
           git config user.name github-actions
           git config user.email github-actions@github.com
+          git add source.json
           git commit -m "uYou+ Update"
           git push
