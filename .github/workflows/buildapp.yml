@@ -59,7 +59,7 @@ jobs:
         run: brew install ldid dpkg make
 
       - name: Set PATH environment variable
-        run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH 
+        run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
       - name: Setup Theos
         uses: actions/checkout@v3.2.0
@@ -114,9 +114,9 @@ jobs:
         run: |
           cd ${{ github.workspace }}/main
           sed -i '' "27s#.*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
-          sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile          
+          sed -i '' "26s#.*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile
           make package IPA=YouTube.ipa FINALPACKAGE=1
-          (mv "packages/$(ls -t packages | head -n1)" "packages/uYouPlus_${{ env.YOUTUBE_VERSION  }}_${{ env.UYOU_VERSION }}.ipa")
+          (mv "packages/$(ls -t packages | head -n1)" "packages/uYouPlus.ipa")
           echo "package=$(ls -t packages | head -n1)" >>$GITHUB_OUTPUT
           echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
           echo -e "==> \033[1mBundle ID: ${{ env.BUNDLE_ID }}\033[0m"
@@ -137,27 +137,6 @@ jobs:
           name: uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}
           path: ${{ github.workspace }}/main/packages/${{ steps.build_package.outputs.package }}
           if-no-files-found: error
-          
-      - name: Update Source
-        run: |
-          (echo "artifact_url=$(echo "artifact_url=https://github.com/$GITHUB_REPOSITORY/suites/$GITHUB_RUN_ID/artifacts/uYouPlus_${{ env.YOUTUBE_VERSION }}_${{ env.UYOU_VERSION }}.ipa" >> $GITHUB_OUTPUT)" >> $GITHUB_ENV)
-          cd ${{ github.workspace }}/main/packages
-          git clone https://github.com/nickoanastassiu/AltSource.git
-          (mv "uYouPlus_${{ env.YOUTUBE_VERSION  }}_${{ env.UYOU_VERSION }}.ipa" ipa.zip)
-          unzip ipa.zip
-          (swift ./AltSource/updates/uYouPlus.swift "${{ github.event.head_commit.message }}" "${{ env.artifact_url }}")
- 
-      - name: Commit Source
-        uses: dmnemec/copy_file_to_another_repo_action@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        with:
-          source_file: "source.json"
-          destination_repo: "nickoanastassiu/AltStore"
-          destination_file: "source.json"
-          commit_message: "uYou+ Update"
-          user_name: "nickoanastassiu"
-          user_email: ${{ secrets.USER_EMAIL }}
 
       - name: Create Release
         id: create_release
@@ -172,3 +151,26 @@ jobs:
           name: v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})
           files: main/packages/*.ipa
           draft: ${{ env.DRAFT }}
+
+      - name: Update Source
+        env:
+          UYOU_VERSION: ${{ inputs.uyou_version }}
+          YOUTUBE_VERSION: ${{ inputs.youtube_version }}
+        run: |
+          cd ${{ github.workspace }}/main/packages
+          git clone https://github.com/nickoanastassiu/AltSource.git
+          mv uYouPlus.ipa ipa.zip
+          unzip ipa.zip
+          swift ./AltSource/updates/uYouPlus.swift "(${{ github.event.head_commit.message }})" "v${{ env.YOUTUBE_VERSION }}-${{ env.UYOU_VERSION }}-(${{ github.run_number }})"
+ 
+      - name: Commit Source
+        uses: dmnemec/copy_file_to_another_repo_action@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source_file: "source.json"
+          destination_repo: "nickoanastassiu/AltSource"
+          destination_file: "source.json"
+          commit_message: "uYou+ Update"
+          user_name: "nickoanastassiu"
+          user_email: ${{ secrets.USER_EMAIL }}
